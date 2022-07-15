@@ -1,0 +1,75 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+    IEnumerable<Player> currentPlayers = ViewData["CurrentPlayers"] as IEnumerable<Player>;
+    IEnumerable<Player> allPlayers = ViewData["AllPlayers"] as IEnumerable<Player>;
+}
+
+<div class="text-center">
+
+    @*    @foreach (var item in Model)
+        {
+        <div>
+        @item.Name | @item.Position
+        <hr />
+        </div>
+        }*@
+
+    @if (!ViewBag.ShowScoring)
+    {
+        @using (Html.BeginForm("Start", "Home", FormMethod.Post))
+        {
+            <input type="submit" class="btn btn-success" value="Start" />
+        }
+    }
+
+    @if (ViewBag.ShowScoring)
+    {
+
+        <form action="CalculateScore" method="post">
+
+            <div class="row">
+                <div class="col">
+                    <input type="text" class="form-control" name="firstPlayer" value="@currentPlayers.ElementAt(0).Name">
+                </div>
+                <div class="col-2">
+                    <input type="number" min="0" class="form-control" name="firstScore" placeholder="Score">
+                </div>
+                <div class="col-2">
+                    <input type="number"  min="0" class="form-control" name="secondScore" placeholder="Score">
+                </div>
+                <div class="col">
+                    <input type="text" class="form-control" name="secondPlayer" value="@currentPlayers.ElementAt(1).Name">
+                </div>
+            </div>
+
+            <input type="submit" class="btn btn-primary mt-5" value="Submit" />
+        </form>
+    }
+
+
+    @if (ViewBag.ShowList)
+    {
+        <table class="table mt-5">
+
+            <thead>
+                <tr>
+                    <th scope="col">Position</th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Score</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in allPlayers)
+                {
+                    <tr>
+                        <td>@item.Position</td>
+                        <td>@item.Name</td>
+                        <td>@item.Score</td>
+                    </tr>
+                }
+            </tbody>
+
+        </table>
+    }
+
+</div>

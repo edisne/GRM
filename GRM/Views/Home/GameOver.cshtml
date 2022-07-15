@@ -1,0 +1,27 @@
+﻿@{
+    ViewData["Title"] = "Game Over - Final Score";
+     IEnumerable<Player> allPlayers = ViewData["AllPlayers"] as IEnumerable<Player>;
+}
+<h1>@ViewData["Title"]</h1>
+
+        <table class="table mt-5">
+
+            <thead>
+                <tr>
+                    <th scope="col">Position</th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Score</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in allPlayers)
+                {
+                    <tr>
+                        <td>@item.Position</td>
+                        <td>@item.Name</td>
+                        <td>@item.Score</td>
+                    </tr>
+                }
+            </tbody>
+
+        </table>
