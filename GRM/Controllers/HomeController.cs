@@ -27,12 +27,8 @@ namespace GRM.Controllers
         {
 
             List<Player> playersList = new List<Player>(players);
-            var gameDone = 0;
-            foreach (var item in playersList)
-            {
-                if (item.PlayedAll)
-                    gameDone++;    
-            }
+            
+            var gameDone = GameDone(playersList);
 
             if (gameDone == 6)
                 return null;
@@ -41,11 +37,13 @@ namespace GRM.Controllers
 
             firstPlayer.PlayedAll = firstPlayer.PlayedWith.Count() == 5;
 
-            while(firstPlayer.PlayedAll)
+            while (firstPlayer.PlayedAll)
             {
-          
+                if (GameDone(playersList) == 6)
+                    break;
                 firstPlayer = GetRandomPlayer(playersList);
                 firstPlayer.PlayedAll = firstPlayer.PlayedWith.Count() == 5;
+
             }
 
             playersList.Remove(firstPlayer);
@@ -54,13 +52,16 @@ namespace GRM.Controllers
 
             while (CheckIfPlayed(firstPlayer, secondPlayer))
             {
+                if (GameDone(playersList) == 5)
+                    break;
                 secondPlayer = GetRandomPlayer(playersList);
             };
 
             secondPlayer.PlayedAll = secondPlayer.PlayedWith.Count() == 5;
 
 
-            if (!CheckIfPlayed(firstPlayer, secondPlayer)) { 
+            if (!CheckIfPlayed(firstPlayer, secondPlayer))
+            {
                 firstPlayer.PlayedWith.Add(secondPlayer);
                 secondPlayer.PlayedWith.Add(firstPlayer);
             }
@@ -70,11 +71,19 @@ namespace GRM.Controllers
 
             IEnumerable<Player> TwoRandomPlayers = new[] { firstPlayer, secondPlayer };
 
-            if (firstPlayer == null && secondPlayer == null)
-                TwoRandomPlayers = null;
-
-                
             return TwoRandomPlayers;
+        }
+
+        private static int GameDone(List<Player> playersList)
+        {
+            var gameDone = 0;
+            foreach (var item in playersList)
+            {
+                if (item.PlayedAll)
+                    gameDone++;
+            }
+
+            return gameDone;
         }
 
         private static bool CheckIfPlayed(Player first, Player second)
@@ -123,8 +132,6 @@ namespace GRM.Controllers
 
             var currentPlayers = GetRandomTwo();
 
-            if (currentPlayers == null)
-                return RedirectToAction("GameOver");
 
             ViewData["CurrentPlayers"] = currentPlayers;
             ViewData["AllPlayers"] = players;
@@ -135,25 +142,24 @@ namespace GRM.Controllers
                 return View("Index");
             }
 
-
-
-            /*
-              After the submit event is triggered, the list item with the higher value will have its Score attribute
-              value increased by one.
-
-              After the submit event, the user will be presented with two new list items that will be compared and
-              the list will be sorted by the value of the Score attribute. This will continue until every item is 
-              compared with every other item in the list.
-              */
-
-            //firstScore > secondScore? players.Where(p => p.Name == firstPlayer).Select(p => p.Score++) : players.Where(p => p.Name == secondPlayer).Select(p => p.Score++);
-
             var player = firstScore > secondScore ? firstPlayer : secondPlayer;
 
             players.Where(c => c.Name == player).Select(c => ++c.Score).ToList();
 
-            ViewData["AllPlayers"] = players.OrderByDescending(player => player.Score).ToList();
+            var sortedPlayers = players.OrderByDescending(player => player.Score).ToList();
 
+            var position = 1;
+            var totalScore = 0;
+            foreach (var item in sortedPlayers)
+            {
+                item.Position = position++;
+                totalScore += item.Score;
+            }
+
+            if(totalScore == 15)
+                return RedirectToAction("GameOver");
+
+            ViewData["AllPlayers"] = sortedPlayers;
 
             return View("Index");
         }
